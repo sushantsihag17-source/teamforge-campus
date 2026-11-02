@@ -1,90 +1,230 @@
-# TeamForge — Real-Account Campus Collaboration (Render + Supabase)
+# Colliq
 
-A white-theme campus collaboration website. Students create **real accounts**, register their own profiles, post projects, recruit teammates, apply, and accept invitations. The algorithms run in JavaScript behind the scenes. **No seeded students, dummy projects, demo logins or public DSA visualizers.** The database is empty until real students register.
+A campus collaboration platform for finding teammates, sharing project ideas, and building things together.
 
-## Technology for Semester 3
+Colliq started as TeamForge, a Semester 3 Advanced Data Structures and Algorithms project. It provides a place for students to connect based on their skills, interests, and projects.
 
-| Layer | Language / service |
-|---|---|
-| Website layout | HTML5 |
-| Appearance | CSS3 |
-| Interactive frontend | Vanilla JavaScript |
-| Server | Node.js (JavaScript), built-in `http` module |
-| Real login | Supabase Authentication (email/password) |
-| Permanent records | Supabase PostgreSQL via REST API |
-| Deployment | GitHub + Render Web Service |
-| Algorithms | Vanilla JavaScript in `src/algorithms.js` |
+**Live website:** https://teamforge-campus.onrender.com
+**GitHub:** https://github.com/sushantsihag17-source/teamforge-campus
 
-No Python or C++ is needed to run this project. No frontend framework, npm runtime packages, or AI API is required. The frontend does load the official Supabase JavaScript SDK from its CDN to manage login sessions.
+## About
 
-## 1. Create your Supabase database
+Finding the right people for a college project or hackathon isn't always straightforward. Students usually rely on classmates, WhatsApp groups, or people they already know.
 
-1. Visit https://supabase.com/dashboard and create a project. Keep its database password safe.
-2. Open **SQL Editor** → **New query**.
-3. Copy and run the entire `database/schema.sql` file. It creates the tables, database constraints and transactional functions; no sample rows.
-4. Open **Project Settings → API Keys** (or the dashboard's API Keys section). Copy the project URL, the **anon / publishable** key, and a **service_role / secret** server key.
-5. Never put the service-role/secret key in HTML, browser JavaScript, a public GitHub file or a screenshot. It belongs **only** in Render's secret environment settings.
-6. In **Authentication → Providers → Email**, keep email/password auth enabled and preferably require email confirmation.
+Colliq brings that process into one place.
 
-## 2. Publish to GitHub
+Students can set up profiles, explore projects, find collaborators, and apply to join teams. Project owners can review applications, invite people, and manage their members.
 
-1. Create a new GitHub repository named `teamforge-campus` (private or public).
-2. Upload the **contents of this `TeamForge` folder** to the repository root (not the ZIP itself). Make sure GitHub shows `server.js`, `package.json`, `public/`, `src/`, `database/`, and `render.yaml`.
-3. Never upload `.env` or any real keys. `.gitignore` excludes `.env` by default.
+The platform also suggests potential teammates based on the skills and interests listed in their profiles.
 
-## 3. Deploy to Render
+## Features
 
-1. Go to https://dashboard.render.com/ and sign in with GitHub.
-2. Click **New → Web Service**, select `teamforge-campus`.
-3. Set **Runtime:** Node, **Branch:** main, **Build Command:** `npm install`, **Start Command:** `npm start`, **Instance Type:** Free (if offered).
-4. In **Environment**, add:
+* **Student profiles:** Add skills, interests, academic details, and availability.
+* **Project listings:** Publish project ideas and specify the skills needed.
+* **Teammate discovery:** Browse students and find potential collaborators.
+* **Team recommendations:** Get suggestions based on skill compatibility.
+* **Applications:** Apply to join projects and review incoming requests.
+* **Invitations:** Invite students to projects and manage responses.
+* **Team management:** Keep track of project members and open positions.
 
-   ```
-   NODE_ENV=production
-   SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-   SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_ANON_KEY
-   SUPABASE_SERVICE_ROLE_KEY=YOUR_SECRET_SERVER_KEY
-   ```
+The application doesn't contain preloaded student profiles or projects. Records are created as people register and use the platform.
 
-5. Click **Create Web Service**. Wait for the deployment to report success.
-6. Open the generated HTTPS address (for example `https://teamforge-campus.onrender.com`). The exact hostname is assigned by Render and may differ.
-7. Check `https://YOUR_RENDER_URL/api/health`. It should return `{"ok":true,"service":"TeamForge"}`.
+## Tech Stack
 
-Render can read the included `render.yaml` blueprint too, but the standard Web Service wizard is simpler for a first deployment.
+| Component       | Technology            |
+| --------------- | --------------------- |
+| Frontend        | HTML, CSS, JavaScript |
+| Backend         | Node.js               |
+| Database        | Supabase PostgreSQL   |
+| Authentication  | Supabase Auth         |
+| Hosting         | Render                |
+| Version control | GitHub                |
 
-## 4. Configure email confirmation redirects
+The backend uses Node.js's built-in HTTP module.
 
-In Supabase → **Authentication → URL Configuration**:
+The frontend is written in vanilla JavaScript without a framework. Supabase's JavaScript client is loaded in the browser for authentication.
 
-- **Site URL:** your exact `https://...onrender.com` address.
-- **Redirect URLs:** add the same address with `/**` or the exact paths you plan to use. For local development also allow `http://localhost:3000/**`.
+## Project Structure
 
-This allows users to follow their email confirmation links back to the live TeamForge website. Supabase's built-in email sender has limits; for broader deployment configure an approved SMTP provider.
+```text
+public/
+    Website interface
+    Stylesheets
+    Authentication pages
+    Frontend JavaScript
 
-## 5. Test real users (without dummy records)
+src/
+    Application logic
+    Matching algorithms
 
-1. Open the live site in your browser and click **Create account**.
-2. Sign up using an actual email address and a password; verify the email if prompted.
-3. Sign in and complete your real student profile (name, program, skills, interests).
-4. Create a project. Reload the website: the project should still be there.
-5. Ask a classmate to sign up with their own email in another browser or device.
-6. From your profile, invite your classmate or let them apply. Log in as the classmate to accept. Verify the roster updates.
+database/
+    schema.sql
 
-There are **no default student accounts** or hardcoded credentials. This means teammate recommendations will be empty until at least two genuine profiles exist.
+docs/
+    Architecture documentation
 
-## 6. Local development (optional)
+server.js
+package.json
+render.yaml
+README.md
+```
 
-Install Node.js 18+ (Node 20 or 22 is recommended) and set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` as environment variables in your local terminal. Do not commit credentials. Then run `npm start` and open http://localhost:3000. The Windows launcher starts the server but expects the variables to already be set.
+The main server is defined in `server.js`. Matching and recommendation logic is maintained separately in `src/algorithms.js`.
 
-Run `npm test` for the independent ADSA unit tests. Those tests use tiny synthetic fixtures *inside the test file only*; the website never imports those fixtures.
+## Running Locally
 
-## Security and operational notes
+You'll need Node.js 18 or later and a Supabase project.
 
-- Browser clients see only the Supabase **public anon/publishable key**. The secret service-role key remains server-side.
-- Every data API route verifies the caller's Supabase Auth token. Owners approve project applications; invited users accept their own invitations.
-- SQL tables have RLS enabled and deny browser data access. The Node backend is the only intended gateway.
-- This is a **campus pilot**, not a university-verified identity provider. Any email holder can sign up unless you configure an institution-email requirement and verify ownership. Do not claim accounts are official university identities.
-- Do not upload confidential student records. A published student profile (name, skills, year) is visible to other logged-in members; obtain consent from test participants.
-- Free Render servers can sleep after inactivity, and Supabase free projects have usage and inactivity limits. Review backups and abuse controls before launching broadly.
-- Before larger-scale public rollout add rate limiting, spam moderation, account deletion/privacy controls, email delivery monitoring, database backups, and abuse reporting.
-- **Important:** The external Supabase configuration is not included, so this ZIP is deployable but cannot be a working live site until you create the Supabase project and add your keys.
+### Database setup
+
+Create a project at https://supabase.com/dashboard.
+
+Open the Supabase SQL Editor and execute the contents of:
+
+```text
+database/schema.sql
+```
+
+This creates the tables and database functions used by the application.
+
+No sample records are inserted.
+
+### Environment variables
+
+The server requires the following configuration:
+
+```env
+NODE_ENV=production
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+Use the base Supabase project URL without `/rest/v1/`.
+
+The current implementation expects Supabase's legacy `anon` and `service_role` keys.
+
+Keep the service-role key private. It must only be used on the server and should never be committed to GitHub.
+
+### Start the server
+
+Once the environment variables are configured, run:
+
+```bash
+npm start
+```
+
+The website will be available at:
+
+```text
+http://localhost:3000
+```
+
+To run the algorithm tests:
+
+```bash
+npm test
+```
+
+## Deployment
+
+Colliq is hosted on Render and uses Supabase for authentication and data storage.
+
+To deploy your own instance:
+
+1. Fork or clone the repository.
+2. Create a Supabase project and execute `database/schema.sql`.
+3. Connect the GitHub repository to a Render Web Service.
+4. Use `npm install` as the build command and `npm start` as the start command.
+5. Add the required environment variables in Render.
+6. Deploy the service.
+
+The repository also includes a `render.yaml` configuration for Render's Blueprint deployment workflow.
+
+### Authentication Configuration
+
+After deployment, open Supabase and navigate to:
+
+**Authentication → URL Configuration**
+
+Set the Site URL to your deployed website address and configure the appropriate redirect URLs.
+
+For local development, you can allow:
+
+```text
+http://localhost:3000/**
+```
+
+Email confirmation should remain enabled for public registrations.
+
+Supabase's default email service has sending limits, so a separate SMTP provider is recommended before inviting a larger number of users.
+
+## How Matching Works
+
+Colliq uses several data structures and algorithms to support teammate discovery and team formation.
+
+The implementation is available in `src/algorithms.js`.
+
+**Hash Maps**
+
+Used for indexing and looking up student and project information efficiently.
+
+**Max-Heap**
+
+Used to rank potential teammates according to their compatibility scores.
+
+**Graphs and BFS**
+
+Used to represent and explore connections between students based on shared interests, skills, and collaborations.
+
+**Bipartite Matching**
+
+Used when assigning students to project requirements. It helps find suitable candidates for different skills or roles while avoiding duplicate assignments.
+
+The algorithms operate behind the scenes. Students interact with recommendations and team-building features through the website.
+
+The recommendation system is rule-based and does not use a trained machine-learning model.
+
+## Testing
+
+The repository includes unit tests for the matching algorithms.
+
+Run them using:
+
+```bash
+npm test
+```
+
+The tests use synthetic inputs defined within the test suite. These are separate from the data stored in Supabase.
+
+For application testing, create two accounts and check the complete workflow: profile creation, project publishing, applications, invitations, and membership updates.
+
+## Current Limitations
+
+Colliq is an independent student project and is not an official Chandigarh University platform.
+
+The current authentication system verifies email ownership when confirmation is enabled, but it does not independently verify university enrollment.
+
+The application is suitable for testing with a small group of students. Before a wider public launch, several areas need improvement:
+
+* Account deletion and privacy controls
+* Spam prevention and rate limiting
+* Reporting and moderation tools
+* More reliable email delivery
+* Database backup and recovery
+* Monitoring and error reporting
+* Better handling of inactive accounts
+
+Render's free hosting services may also take additional time to respond after periods of inactivity.
+
+## Contributing
+
+Changes and improvements can be made through the GitHub repository.
+
+Frontend files are located in `public/`, while the server and matching logic are maintained separately.
+
+When modifying the matching algorithms, run the existing tests before committing.
+
+Changes to the database structure should be documented carefully to avoid breaking existing accounts or project records.
+
+The long-term goal is to make Colliq a useful platform for students who want to collaborate on projects, hackathons, research, and other technical work.
